@@ -2,11 +2,13 @@ import mysql.connector as m
 from time import sleep
 con=m.connect(user="root",password="258000",host="localhost")
 cur=con.cursor()
-cur.execute('show databases like "employee";')
+cur.execute('show databases like "aditya0923";')
 if cur.fetchall()==[]:
-    cur.execute("create database employee;use employee;create table details(id int primary key,name varchar(50) not null,basic_salary int default 0,HRA int default 0,CA int default 0);")
+    cur.execute("create database aditya0923;use aditya0923;create table details(id int primary key,name varchar(50) not null,basic_salary int default 0,HRA int default 0,CA int default 0);")
+    con=m.connect(user="root",password="258000",host="localhost",database="aditya0923")
+    cur=con.cursor()
 else:
-    con=m.connect(user="root",password="258000",host="localhost",database="employee")
+    con=m.connect(user="root",password="258000",host="localhost",database="aditya0923")
     cur=con.cursor()
 def validate_id():
     while True:
@@ -83,7 +85,8 @@ def search_id():
     if f:
         cur.execute(f"select * from details where id={e_id}")
         t=cur.fetchone()
-        print("ID:-",t[0],"\nName:-",t[1],"\nBasic Salary:-",t[2],"\nHouse Rent Allowance:-",t[3],"\nConveyance Allowance:-",t[-1],sep="")
+        print(f"{'ID':<6}{'Name':<20}{'Basic Salary':<20}{'HRA':<10}{'CA':<10}","-".center(65,"-"),sep="\n")
+        print(f"{t[0]:<6}{t[1]:<20}{t[2]:<20}{t[3]:<10}{t[4]:<10}")
     else:
         print("<This Employee ID does not exists>".center(80,"-"))
 def search_name():
@@ -100,28 +103,19 @@ def search_name():
     else:
         print("<No matches found>".center(80,"-"))
 def total_salary():
-    while True:
-        try:
-            e_id=int(input("Employee_ID: "))
-            break
-        except:
-            print("<Employee_ID must be numeric and cannot be left empty>".center(80,"-"))
-            continue
-    if e_id in d:
-        total_salary=d[e_id][1]+d[e_id][2]+d[e_id][3]
-        print("Total_Salary=",total_salary)
+    f,e_id=validate_id()
+    if f:
+        cur.execute(f"select * from details where id='{e_id}';")
+        t=cur.fetchone()
+        print("Total Salary=",t[2]+t[3]+t[4])
     else:
         print("<This Employee ID does not exists>".center(80,"-"))
 def total_allowance():
-    while True:
-        try:
-            e_id=int(input("Employee_ID: "))
-            break
-        except:
-            print("<Employee_ID must be numeric and cannot be left empty>".center(80,"-"))
-    if e_id in d:
-        total_allowance=d[e_id][2]+d[e_id][3]
-        print("Total_Allowance=",total_allowance)
+    f,e_id=validate_id()
+    if f:
+        cur.execute(f"select * from details where id='{e_id}';")
+        t=cur.fetchone()
+        print("Total allowance=",t[3]+t[4])
     else:
         print("<This Employee ID does not exists>".center(80,"-"))
 while True:
@@ -143,10 +137,11 @@ while True:
     elif choice==3:
         search_name()
     elif choice==4:
-        total_allowance()
-    elif choice==5:
         total_salary()
+    elif choice==5:
+        total_allowance()
     elif choice==6:
+        con.close()
         print('\n',"<Program has ended>".center(80,"-"),sep="")
         sleep(1)
         break
